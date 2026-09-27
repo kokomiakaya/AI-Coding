@@ -116,7 +116,19 @@
 - 完整打包命令：`PATH="/c/Windows/System32/WindowsPowerShell/v1.0:$PATH" env -u ELECTRON_RUN_AS_NODE ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/ npm run build:win`（后台运行需关闭沙箱）
 - Electron 内核二进制无法从 GitHub 下载时，使用国内镜像重试：`ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ node node_modules/electron/install.js`。
 
-## 10. 已做的技术决策记录
+## 11. GitHub 仓库信息
+
+- 仓库地址：https://github.com/kokomiakaya/AI-Coding（公开仓库，用户 kokomiakaya）
+- 项目位于仓库内 `heima-jizhang` 子文件夹（2026-09-27 首次上传，含全部开发历史）
+- 本机已缓存 GitHub 登录凭证，git push 无需交互
+- 上传的是源代码：node_modules（依赖）、dist（安装包产物）不在版本库内（见 .gitignore）
+- 以后更新代码的步骤（在项目目录执行）：
+  1. `git add -A && git commit -m "说明"`
+  2. 临时克隆仓库：`git clone https://github.com/kokomiakaya/AI-Coding.git <临时目录>`
+  3. 在临时克隆中执行 `git subtree pull --prefix=heima-jizhang "E:/vibecoding/黑马记账 APP" master`，再 `git push origin main`
+  4. 删除临时目录
+
+## 12. 已做的技术决策记录
 
 | 日期 | 决策点 | 选择 | 备注 |
 |---|---|---|---|
