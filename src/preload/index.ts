@@ -1,8 +1,16 @@
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import type { BillInput } from '../shared/types'
 
-// 业务接口：M3 阶段会在这里加上账单的增删改查接口
-const api = {}
+// 渲染进程可用的业务接口（通过 IPC 调用主进程）
+const api = {
+  addBill: (bill: BillInput): Promise<{ ok: boolean; id?: number; error?: string }> =>
+    ipcRenderer.invoke('bill:add', bill),
+  getMonthSummary: (
+    yearMonth: string
+  ): Promise<{ ok: boolean; summary?: { incomeCents: number; expenseCents: number }; error?: string }> =>
+    ipcRenderer.invoke('bill:monthSummary', yearMonth)
+}
 
 if (process.contextIsolated) {
   try {

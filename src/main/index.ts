@@ -1,6 +1,8 @@
-import { app, shell, BrowserWindow } from 'electron'
+import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+import { initDatabase, addBill, getMonthSummary } from './db'
+import type { BillInput } from '../shared/types'
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -35,12 +37,36 @@ function createWindow(): void {
   }
 }
 
+// 注册账单相关的接口：渲染进程通过 window.api 调用
+function registerBillHandlers(): void {
+  ipcMain.handle('bill:add', (_event, bill: BillInput) => {
+    try {
+      const id = addBill(bill)
+      return { ok: true, id }
+    } catch (error) {
+      return { ok: false, error: String(error) }
+    }
+  })
+
+  ipcMain.handle('bill:monthSummary', (_event, yearMonth: string) => {
+    try {
+      const summary = getMonthSummary(yearMonth)
+      return { ok: true, summary }
+    } catch (error) {
+      return { ok: false, error: String(error) }
+    }
+  })
+}
+
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.heima.jizhang')
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
+
+  initDatabase()
+  registerBillHandlers()
 
   createWindow()
 
