@@ -101,14 +101,19 @@
 | M2 应用骨架 | 能打开主窗口，三个页面框架 + 记账表单界面 | ✅ 完成 |
 | M3 记账功能 | 分类选择、保存支出/收入账单（SQLite） | ✅ 完成 |
 | M4 流水明细 | 查看 / 筛选 / 修改 / 删除 | ✅ 完成 |
-| M5 统计页 | 月度汇总 + 分类占比条形列表（待加饼图） | 🔄 进行中 |
-| M6 打包发布 | 打包成 Windows 安装包（exe），双击安装即可使用 | ⬜ 待开始 |
+| M5 统计页 | 月度汇总 + 分类占比条形列表 + 支出构成饼图 | ✅ 完成 |
+| M6 打包发布 | 打包成 Windows 安装包（exe），双击安装即可使用 | ✅ 完成 |
 
 ## 9. 开发注意事项（踩坑记录）
 
 - **从 Claude Code（VSCode 插件）环境启动应用时**，必须使用 `env -u ELECTRON_RUN_AS_NODE npm run dev` 启动。该环境变量由 VSCode 扩展宿主继承而来，会让 Electron 以纯 Node 模式运行导致崩溃（2026-09-27 踩坑）。
 - **从本工具启动图形界面应用时需关闭沙箱**（后台运行 + dangerouslyDisableSandbox），否则沙箱会终止窗口进程，应用打开后会自动退出（2026-09-27 踩坑）。
 - **停止开发实例后需清理残留进程**：TaskStop 只杀掉外层 npm 进程，electron.exe 子进程会残留并占用 5173 端口、引发缓存冲突。重启前执行 `taskkill //F //IM electron.exe`（2026-09-27 踩坑）。
+- **electron-builder 打包要点**（2026-09-27 踩坑，均为国内网络/本环境特有）：
+  1. 必须配置 `electronDist: node_modules/electron/dist`，否则打包器会尝试从 GitHub 重新下载内核（国内约 20KB/s）并卡死；
+  2. 打包命令需设置镜像 `ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/`（NSIS 等工具从 GitHub 下载）；
+  3. 本开发环境的 PATH 缺 PowerShell 目录，打包前需 `PATH="/c/Windows/System32/WindowsPowerShell/v1.0:$PATH"`，否则报 spawn powershell.exe ENOENT。
+- 完整打包命令：`PATH="/c/Windows/System32/WindowsPowerShell/v1.0:$PATH" env -u ELECTRON_RUN_AS_NODE ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/ npm run build:win`（后台运行需关闭沙箱）
 - Electron 内核二进制无法从 GitHub 下载时，使用国内镜像重试：`ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ node node_modules/electron/install.js`。
 
 ## 10. 已做的技术决策记录
@@ -124,3 +129,7 @@
 | 2026-09-27 | 存储工具 | Node 内置 SQLite（node:sqlite） | 用户从 3 个方案中选定 |
 | 2026-09-27 | TypeScript 版本 | 固定 5.x | Claude 直接决定（TS 7 与 vue-tsc 不兼容），协作规则第 2 条例外 |
 | 2026-09-27 | 金额存储方式 | 以「分」为单位的整数 | Claude 直接决定（避免小数误差），协作规则第 2 条例外 |
+| 2026-09-27 | 图表工具 | ECharts | 用户从 3 个方案中选定 |
+| 2026-09-27 | 打包工具 | electron-builder | 用户从 2 个方案中选定 |
+| 2026-09-27 | 安装包形态 | 安装版（NSIS，可选安装目录，无需管理员权限） | 用户从 3 个方案中选定 |
+| 2026-09-27 | 应用图标 | Claude 生成的默认图标（深色圆角 + 🐴，build/icon.png） | 用户选定，可随时更换 |

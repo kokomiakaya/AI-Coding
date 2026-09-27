@@ -11,7 +11,13 @@
       "Bash(\"./node_modules/electron/dist/electron.exe\" --version)",
       "Bash(node -e \"const p=require\\('./node_modules/electron/package.json'\\); console.log\\(JSON.stringify\\({bin:p.bin, main:p.main, scripts:p.scripts}, null, 1\\)\\)\")",
       "Bash(env -u ELECTRON_RUN_AS_NODE npm run dev)",
-      "Bash(powershell -command 'Add-Type -AssemblyName System.Windows.Forms,System.Drawing; $b=[System.Windows.Forms.Screen]::PrimaryScreen.Bounds; $bmp=New-Object System.Drawing.Bitmap\\($b.Width,$b.Height\\); $g=[System.Drawing.Graphics]::FromImage\\($bmp\\); $g.CopyFromScreen\\($b.Location,[System.Drawing.Point]::Empty,$b.Size\\); $bmp.Save\\('\\\\''C:\\\\Users\\\\KOKOMI\\\\AppData\\\\Local\\\\Temp\\\\heima_shot.png'\\\\''\\); Write-Output '\\\\''saved'\\\\''')"
+      "Bash(powershell -command 'Add-Type -AssemblyName System.Windows.Forms,System.Drawing; $b=[System.Windows.Forms.Screen]::PrimaryScreen.Bounds; $bmp=New-Object System.Drawing.Bitmap\\($b.Width,$b.Height\\); $g=[System.Drawing.Graphics]::FromImage\\($bmp\\); $g.CopyFromScreen\\($b.Location,[System.Drawing.Point]::Empty,$b.Size\\); $bmp.Save\\('\\\\''C:\\\\Users\\\\KOKOMI\\\\AppData\\\\Local\\\\Temp\\\\heima_shot.png'\\\\''\\); Write-Output '\\\\''saved'\\\\''')",
+      "Bash(/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -command \"Get-Process node -ErrorAction SilentlyContinue | Select-Object Id,CPU | Format-Table\")",
+      "Bash(taskkill //F //IM node.exe)",
+      "Bash(env -u ELECTRON_RUN_AS_NODE DEBUG=electron-builder ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/ npm run build:win)",
+      "Bash(PATH=/c/Windows/System32/WindowsPowerShell/v1.0:__TRACKED_VAR__ env -u ELECTRON_RUN_AS_NODE ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/ npm run build:win)",
+      "Bash(grep -av \"^  at \\\\|^$\")",
+      "Bash(git commit -m 'M6：打包发布完成，生成 Windows 安装包 *)"
     ]
   }
 }

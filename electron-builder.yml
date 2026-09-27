@@ -1,0 +1,26 @@
+appId: com.heima.jizhang
+productName: 黑马记账
+directories:
+  buildResources: build
+files:
+  - out/**
+  - '!**/.vscode/*'
+  - '!src/*'
+  - '!electron.vite.config.{js,ts,mjs,cjs}'
+  - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+  - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
+electronDist: node_modules/electron/dist
+win:
+  executableName: heima-jizhang
+  icon: build/icon.png
+nsis:
+  artifactName: ${productName}-${version}-安装包.${ext}
+  shortcutName: ${productName}
+  uninstallDisplayName: ${productName}
+  createDesktopShortcut: always
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  installerLanguages:
+    - zh_CN
+npmRebuild: false

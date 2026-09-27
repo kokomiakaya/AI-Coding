@@ -8,7 +8,8 @@
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "start": "electron-vite preview",
-    "typecheck": "vue-tsc --noEmit -p tsconfig.web.json --composite false"
+    "typecheck": "vue-tsc --noEmit -p tsconfig.web.json --composite false",
+    "build:win": "electron-vite build && electron-builder --win"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.2",
@@ -22,6 +23,7 @@
     "@electron-toolkit/tsconfig": "^2.0.0",
     "@vitejs/plugin-vue": "^6.0.9",
     "electron": "^44.4.5",
+    "electron-builder": "^26.15.3",
     "electron-vite": "^5.0.0",
     "typescript": "^5.9.3",
     "vite": "^7.3.6",
