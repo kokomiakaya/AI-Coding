@@ -112,3 +112,25 @@ export const incomeCategories: string[] = [
   '红包',
   '其他收入'
 ]
+
+/** 支出大类对应的图标（用于明细列表展示） */
+const expenseIcons: Record<string, string> = {
+  餐饮饮食: '🍚',
+  交通出行: '🚌',
+  购物消费: '🛍️',
+  居住生活: '🏠',
+  休闲娱乐: '🎮',
+  医疗健康: '💊',
+  学习教育: '📚',
+  人情往来: '🎁',
+  通讯网络: '📱',
+  其他支出: '📦'
+}
+
+/** 根据支出大类取图标 */
+export function expenseIcon(parent: string): string {
+  return expenseIcons[parent] ?? '💸'
+}
+
+/** 收入的图标 */
+export const incomeIcon = '💰'

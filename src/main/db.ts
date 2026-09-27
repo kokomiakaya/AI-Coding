@@ -1,7 +1,7 @@
 import { DatabaseSync } from 'node:sqlite'
 import { app } from 'electron'
 import { join } from 'path'
-import type { BillInput, MonthSummary } from '../shared/types'
+import type { BillInput, BillRecord, BillType, MonthSummary } from '../shared/types'
 
 // 账单数据库（SQLite）
 // 数据文件位于系统应用数据目录，例如 C:\Users\用户名\AppData\Roaming\heima-jizhang\heima-jizhang.db
@@ -61,4 +61,40 @@ export function getMonthSummary(yearMonth: string): MonthSummary {
     )
     .get(`${yearMonth}%`) as { income_cents: number; expense_cents: number }
   return { incomeCents: row.income_cents, expenseCents: row.expense_cents }
+}
+
+/** 查询某月（YYYY-MM）的全部账单，按日期倒序（同一天内后记的在前） */
+export function listBills(yearMonth: string): BillRecord[] {
+  if (!db) throw new Error('数据库尚未初始化')
+  const rows = db
+    .prepare('SELECT * FROM bills WHERE date LIKE ? ORDER BY date DESC, id DESC')
+    .all(`${yearMonth}%`) as Array<Record<string, unknown>>
+  return rows.map((r) => ({
+    id: Number(r.id),
+    type: r.type as BillType,
+    amountCents: Number(r.amount_cents),
+    date: String(r.date),
+    categoryParent: String(r.category_parent),
+    category: String(r.category),
+    note: String(r.note),
+    createdAt: String(r.created_at)
+  }))
+}
+
+/** 修改一笔账单 */
+export function updateBill(id: number, bill: BillInput): void {
+  if (!db) throw new Error('数据库尚未初始化')
+  db.prepare(
+    `
+    UPDATE bills
+    SET type = ?, amount_cents = ?, date = ?, category_parent = ?, category = ?, note = ?
+    WHERE id = ?
+  `
+  ).run(bill.type, bill.amountCents, bill.date, bill.categoryParent, bill.category, bill.note, id)
+}
+
+/** 删除一笔账单 */
+export function deleteBill(id: number): void {
+  if (!db) throw new Error('数据库尚未初始化')
+  db.prepare('DELETE FROM bills WHERE id = ?').run(id)
 }

@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import type { BillInput } from '../shared/types'
+import type { BillInput, BillRecord, MonthSummary } from '../shared/types'
 
 // 渲染进程可用的业务接口（通过 IPC 调用主进程）
 const api = {
@@ -8,8 +8,19 @@ const api = {
     ipcRenderer.invoke('bill:add', bill),
   getMonthSummary: (
     yearMonth: string
-  ): Promise<{ ok: boolean; summary?: { incomeCents: number; expenseCents: number }; error?: string }> =>
-    ipcRenderer.invoke('bill:monthSummary', yearMonth)
+  ): Promise<{ ok: boolean; summary?: MonthSummary; error?: string }> =>
+    ipcRenderer.invoke('bill:monthSummary', yearMonth),
+  listBills: (
+    yearMonth: string
+  ): Promise<{ ok: boolean; bills?: BillRecord[]; error?: string }> =>
+    ipcRenderer.invoke('bill:list', yearMonth),
+  updateBill: (
+    id: number,
+    bill: BillInput
+  ): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('bill:update', id, bill),
+  deleteBill: (id: number): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('bill:delete', id)
 }
 
 if (process.contextIsolated) {

@@ -17,3 +17,9 @@ export interface MonthSummary {
   incomeCents: number
   expenseCents: number
 }
+
+/** 数据库中的一条账单记录 */
+export interface BillRecord extends BillInput {
+  id: number
+  createdAt: string
+}

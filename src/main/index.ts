@@ -1,7 +1,7 @@
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import { initDatabase, addBill, getMonthSummary } from './db'
+import { initDatabase, addBill, getMonthSummary, listBills, updateBill, deleteBill } from './db'
 import type { BillInput } from '../shared/types'
 
 function createWindow(): void {
@@ -52,6 +52,33 @@ function registerBillHandlers(): void {
     try {
       const summary = getMonthSummary(yearMonth)
       return { ok: true, summary }
+    } catch (error) {
+      return { ok: false, error: String(error) }
+    }
+  })
+
+  ipcMain.handle('bill:list', (_event, yearMonth: string) => {
+    try {
+      const bills = listBills(yearMonth)
+      return { ok: true, bills }
+    } catch (error) {
+      return { ok: false, error: String(error) }
+    }
+  })
+
+  ipcMain.handle('bill:update', (_event, id: number, bill: BillInput) => {
+    try {
+      updateBill(id, bill)
+      return { ok: true }
+    } catch (error) {
+      return { ok: false, error: String(error) }
+    }
+  })
+
+  ipcMain.handle('bill:delete', (_event, id: number) => {
+    try {
+      deleteBill(id)
+      return { ok: true }
     } catch (error) {
       return { ok: false, error: String(error) }
     }
