@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/electron/package.json'\\).version, require\\('./node_modules/electron/package.json'\\).scripts || {}\\)\")",
+      "Bash(node install.js)",
+      "Bash(ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ node install.js)",
+      "Bash(npm run *)",
+      "Bash(node -e \"console.log\\('require\\(electron\\) in plain node =>', require\\('electron'\\)\\)\")",
+      "Bash(npx electron *)",
+      "Bash(\"./node_modules/electron/dist/electron.exe\" --version)",
+      "Bash(node -e \"const p=require\\('./node_modules/electron/package.json'\\); console.log\\(JSON.stringify\\({bin:p.bin, main:p.main, scripts:p.scripts}, null, 1\\)\\)\")",
+      "Bash(env -u ELECTRON_RUN_AS_NODE npm run dev)",
+      "Bash(powershell -command 'Add-Type -AssemblyName System.Windows.Forms,System.Drawing; $b=[System.Windows.Forms.Screen]::PrimaryScreen.Bounds; $bmp=New-Object System.Drawing.Bitmap\\($b.Width,$b.Height\\); $g=[System.Drawing.Graphics]::FromImage\\($bmp\\); $g.CopyFromScreen\\($b.Location,[System.Drawing.Point]::Empty,$b.Size\\); $bmp.Save\\('\\\\''C:\\\\Users\\\\KOKOMI\\\\AppData\\\\Local\\\\Temp\\\\heima_shot.png'\\\\''\\); Write-Output '\\\\''saved'\\\\''')"
+    ]
+  }
+}
