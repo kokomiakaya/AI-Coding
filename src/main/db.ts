@@ -1,7 +1,7 @@
 import { DatabaseSync } from 'node:sqlite'
 import { app } from 'electron'
 import { join } from 'path'
-import type { BillInput, BillRecord, BillType, MonthSummary } from '../shared/types'
+import type { BillInput, BillRecord, BillType, CategoryStat, MonthSummary } from '../shared/types'
 
 // 账单数据库（SQLite）
 // 数据文件位于系统应用数据目录，例如 C:\Users\用户名\AppData\Roaming\heima-jizhang\heima-jizhang.db
@@ -78,6 +78,26 @@ export function listBills(yearMonth: string): BillRecord[] {
     category: String(r.category),
     note: String(r.note),
     createdAt: String(r.created_at)
+  }))
+}
+
+/** 查询某月（YYYY-MM）各支出大类的总金额，按金额从高到低 */
+export function getCategoryStats(yearMonth: string): CategoryStat[] {
+  if (!db) throw new Error('数据库尚未初始化')
+  const rows = db
+    .prepare(
+      `
+      SELECT category_parent, SUM(amount_cents) AS total_cents
+      FROM bills
+      WHERE type = 'expense' AND date LIKE ?
+      GROUP BY category_parent
+      ORDER BY total_cents DESC
+    `
+    )
+    .all(`${yearMonth}%`) as Array<Record<string, unknown>>
+  return rows.map((r) => ({
+    parent: String(r.category_parent),
+    totalCents: Number(r.total_cents)
   }))
 }
 

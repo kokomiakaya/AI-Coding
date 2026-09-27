@@ -23,3 +23,9 @@ export interface BillRecord extends BillInput {
   id: number
   createdAt: string
 }
+
+/** 支出分类统计（某月某大类支出总额） */
+export interface CategoryStat {
+  parent: string
+  totalCents: number
+}

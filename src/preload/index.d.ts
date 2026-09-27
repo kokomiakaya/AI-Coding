@@ -1,4 +1,4 @@
-import type { BillInput, BillRecord, MonthSummary } from '../shared/types'
+import type { BillInput, BillRecord, CategoryStat, MonthSummary } from '../shared/types'
 
 declare global {
   interface Window {
@@ -13,6 +13,9 @@ declare global {
       ) => Promise<{ ok: boolean; bills?: BillRecord[]; error?: string }>
       updateBill: (id: number, bill: BillInput) => Promise<{ ok: boolean; error?: string }>
       deleteBill: (id: number) => Promise<{ ok: boolean; error?: string }>
+      getCategoryStats: (
+        yearMonth: string
+      ) => Promise<{ ok: boolean; stats?: CategoryStat[]; error?: string }>
     }
   }
 }
