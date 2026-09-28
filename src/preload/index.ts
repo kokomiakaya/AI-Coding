@@ -28,7 +28,11 @@ const api = {
   getBudget: (): Promise<{ ok: boolean; budgetCents?: number; error?: string }> =>
     ipcRenderer.invoke('budget:get'),
   setBudget: (budgetCents: number): Promise<{ ok: boolean; error?: string }> =>
-    ipcRenderer.invoke('budget:set', budgetCents)
+    ipcRenderer.invoke('budget:set', budgetCents),
+  getSnakeHighScore: (): Promise<{ ok: boolean; score?: number; error?: string }> =>
+    ipcRenderer.invoke('game:getHighScore'),
+  setSnakeHighScore: (score: number): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('game:setHighScore', score)
 }
 
 if (process.contextIsolated) {

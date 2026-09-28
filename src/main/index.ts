@@ -10,7 +10,9 @@ import {
   deleteBill,
   getCategoryStats,
   getBudgetCents,
-  setBudgetCents
+  setBudgetCents,
+  getSnakeHighScore,
+  setSnakeHighScore
 } from './db'
 import type { BillInput } from '../shared/types'
 
@@ -128,6 +130,30 @@ function registerBudgetHandlers(): void {
   })
 }
 
+// 注册贪吃蛇游戏相关的接口
+function registerGameHandlers(): void {
+  ipcMain.handle('game:getHighScore', () => {
+    try {
+      const score = getSnakeHighScore()
+      return { ok: true, score }
+    } catch (error) {
+      return { ok: false, error: String(error) }
+    }
+  })
+
+  ipcMain.handle('game:setHighScore', (_event, score: number) => {
+    try {
+      if (!Number.isInteger(score) || score < 0) {
+        return { ok: false, error: '分数必须是大于等于 0 的整数' }
+      }
+      setSnakeHighScore(score)
+      return { ok: true }
+    } catch (error) {
+      return { ok: false, error: String(error) }
+    }
+  })
+}
+
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.heima.jizhang')
 
@@ -138,6 +164,7 @@ app.whenReady().then(() => {
   initDatabase()
   registerBillHandlers()
   registerBudgetHandlers()
+  registerGameHandlers()
 
   createWindow()
 

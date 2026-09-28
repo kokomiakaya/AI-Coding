@@ -1,6 +1,6 @@
 {
   "name": "heima-jizhang",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "黑马记账 —— Windows 桌面记账应用",
   "main": "./out/main/index.js",
   "author": "Heima",

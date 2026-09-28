@@ -18,6 +18,8 @@ declare global {
       ) => Promise<{ ok: boolean; stats?: CategoryStat[]; error?: string }>
       getBudget: () => Promise<{ ok: boolean; budgetCents?: number; error?: string }>
       setBudget: (budgetCents: number) => Promise<{ ok: boolean; error?: string }>
+      getSnakeHighScore: () => Promise<{ ok: boolean; score?: number; error?: string }>
+      setSnakeHighScore: (score: number) => Promise<{ ok: boolean; error?: string }>
     }
   }
 }

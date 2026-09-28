@@ -144,3 +144,23 @@ export function setBudgetCents(budgetCents: number): void {
      ON CONFLICT(key) DO UPDATE SET value = excluded.value`
   ).run(BUDGET_KEY, String(budgetCents))
 }
+
+const SNAKE_HIGH_SCORE_KEY = 'snake_high_score'
+
+/** 读取贪吃蛇最高分；未记录时返回 null */
+export function getSnakeHighScore(): number | null {
+  if (!db) throw new Error('数据库尚未初始化')
+  const row = db.prepare('SELECT value FROM settings WHERE key = ?').get(SNAKE_HIGH_SCORE_KEY) as
+    | { value: string }
+    | undefined
+  return row ? Number(row.value) : null
+}
+
+/** 保存贪吃蛇最高分 */
+export function setSnakeHighScore(score: number): void {
+  if (!db) throw new Error('数据库尚未初始化')
+  db.prepare(
+    `INSERT INTO settings (key, value) VALUES (?, ?)
+     ON CONFLICT(key) DO UPDATE SET value = excluded.value`
+  ).run(SNAKE_HIGH_SCORE_KEY, String(score))
+}
