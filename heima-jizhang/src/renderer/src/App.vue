@@ -5,6 +5,7 @@ import RecordPage from './pages/RecordPage.vue'
 import ListPage from './pages/ListPage.vue'
 import StatsPage from './pages/StatsPage.vue'
 import DiscoverPage from './pages/DiscoverPage.vue'
+import SnakeGamePage from './pages/SnakeGamePage.vue'
 
 const currentPage = ref('record')
 
@@ -12,7 +13,8 @@ const pages = {
   record: markRaw(RecordPage),
   list: markRaw(ListPage),
   stats: markRaw(StatsPage),
-  discover: markRaw(DiscoverPage)
+  discover: markRaw(DiscoverPage),
+  game: markRaw(SnakeGamePage)
 }
 </script>
 
@@ -44,8 +46,12 @@ const pages = {
           <el-icon><Compass /></el-icon>
           <span>发现</span>
         </el-menu-item>
+        <el-menu-item index="game">
+          <span class="menu-emoji">🎮</span>
+          <span>游戏</span>
+        </el-menu-item>
       </el-menu>
-      <div class="sidebar-footer">v0.2 · 数据存于本机</div>
+      <div class="sidebar-footer">v0.3 · 数据存于本机</div>
     </aside>
     <main class="content">
       <component :is="pages[currentPage]" />
@@ -104,6 +110,15 @@ const pages = {
   border-radius: 8px;
   margin-bottom: 4px;
   height: 46px;
+}
+
+.menu-emoji {
+  font-size: 16px;
+  width: 1em;
+  margin-right: 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sidebar-footer {
