@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import { ref, markRaw } from 'vue'
-import { Coin, List, PieChart } from '@element-plus/icons-vue'
+import { Coin, List, PieChart, Compass } from '@element-plus/icons-vue'
 import RecordPage from './pages/RecordPage.vue'
 import ListPage from './pages/ListPage.vue'
 import StatsPage from './pages/StatsPage.vue'
+import DiscoverPage from './pages/DiscoverPage.vue'
 
 const currentPage = ref('record')
 
 const pages = {
   record: markRaw(RecordPage),
   list: markRaw(ListPage),
-  stats: markRaw(StatsPage)
+  stats: markRaw(StatsPage),
+  discover: markRaw(DiscoverPage)
 }
 </script>
 
@@ -38,8 +40,12 @@ const pages = {
           <el-icon><PieChart /></el-icon>
           <span>统计</span>
         </el-menu-item>
+        <el-menu-item index="discover">
+          <el-icon><Compass /></el-icon>
+          <span>发现</span>
+        </el-menu-item>
       </el-menu>
-      <div class="sidebar-footer">v0.1 · 数据存于本机</div>
+      <div class="sidebar-footer">v0.2 · 数据存于本机</div>
     </aside>
     <main class="content">
       <component :is="pages[currentPage]" />

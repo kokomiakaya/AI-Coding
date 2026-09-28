@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { expenseCategories, incomeCategories } from '../data/categories'
+import { expenseCategories, incomeCategories, expenseIcon, expenseSubIcon } from '../data/categories'
 import type { BillInput, MonthSummary } from '../../../shared/types'
 
 type BillType = 'expense' | 'income'
@@ -25,6 +25,11 @@ const balanceText = computed(() => {
 })
 
 const cascaderProps = { value: 'name', label: 'name' }
+
+/** 分类菜单选项的图标：有下级的是大类用大类图标，没有下级的是小类用小类图标 */
+function optionIcon(data: { name: string; children?: unknown[] }): string {
+  return data.children?.length ? expenseIcon(data.name) : expenseSubIcon(data.name)
+}
 
 function formatDate(d: Date): string {
   const y = d.getFullYear()
@@ -129,7 +134,14 @@ async function handleSave(): Promise<void> {
             separator=" / "
             placeholder="先选大类，再选小类"
             style="width: 100%"
-          />
+          >
+            <template #default="{ data }">
+              <span class="cascader-option">
+                <span class="cascader-icon">{{ optionIcon(data) }}</span>
+                <span>{{ data.name }}</span>
+              </span>
+            </template>
+          </el-cascader>
           <el-select
             v-else
             v-model="incomeCategory"
@@ -195,5 +207,17 @@ async function handleSave(): Promise<void> {
 .form-card {
   max-width: 560px;
   margin: 0 auto;
+}
+
+/* 分类菜单选项（弹层挂载在 body 下，需用全局选择器） */
+:global(.cascader-option) {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+:global(.cascader-icon) {
+  font-size: 16px;
+  line-height: 1;
 }
 </style>
