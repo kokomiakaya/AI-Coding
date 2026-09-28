@@ -1,0 +1,6 @@
+# Python 运行生成的缓存文件
+__pycache__/
+*.pyc
+
+# 游戏数据（个人最高分记录，不随代码上传）
+highscore.json
