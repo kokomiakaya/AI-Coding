@@ -5,6 +5,7 @@ AI 编程项目合集。
 ## 项目列表
 
 - [黑马记账](heima-jizhang/README.md) —— Windows 桌面记账应用（Electron + Vue 3 + SQLite）
+- [贪吃蛇](snake/README.md) —— Python 贪吃蛇小游戏（pygame 图形窗口版）
 
 ## 黑马记账
 
@@ -23,3 +24,15 @@ AI 编程项目合集。
 Electron 44 · Vue 3 · Element Plus · ECharts · SQLite · TypeScript
 
 详细文档见 [heima-jizhang/README.md](heima-jizhang/README.md)。
+
+## 贪吃蛇
+
+经典贪吃蛇小游戏，用 **Python + pygame** 编写的图形窗口版。
+
+### 玩法
+
+- 控制小蛇吃食物得分，蛇身变长；每吃 5 个食物加速一次，越吃越快
+- 撞墙或咬到自己则游戏结束；最高分自动保存在本机
+- 操作：方向键 / WASD 移动 · P 或空格暂停 · 回车重开 · ESC 退出
+
+详细文档见 [snake/README.md](snake/README.md)。
