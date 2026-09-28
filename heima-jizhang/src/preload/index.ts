@@ -24,7 +24,11 @@ const api = {
   getCategoryStats: (
     yearMonth: string
   ): Promise<{ ok: boolean; stats?: CategoryStat[]; error?: string }> =>
-    ipcRenderer.invoke('bill:categoryStats', yearMonth)
+    ipcRenderer.invoke('bill:categoryStats', yearMonth),
+  getBudget: (): Promise<{ ok: boolean; budgetCents?: number; error?: string }> =>
+    ipcRenderer.invoke('budget:get'),
+  setBudget: (budgetCents: number): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('budget:set', budgetCents)
 }
 
 if (process.contextIsolated) {

@@ -8,7 +8,9 @@ import {
   listBills,
   updateBill,
   deleteBill,
-  getCategoryStats
+  getCategoryStats,
+  getBudgetCents,
+  setBudgetCents
 } from './db'
 import type { BillInput } from '../shared/types'
 
@@ -102,6 +104,30 @@ function registerBillHandlers(): void {
   })
 }
 
+// 注册预算相关的接口
+function registerBudgetHandlers(): void {
+  ipcMain.handle('budget:get', () => {
+    try {
+      const budgetCents = getBudgetCents()
+      return { ok: true, budgetCents }
+    } catch (error) {
+      return { ok: false, error: String(error) }
+    }
+  })
+
+  ipcMain.handle('budget:set', (_event, budgetCents: number) => {
+    try {
+      if (!Number.isInteger(budgetCents) || budgetCents <= 0) {
+        return { ok: false, error: '预算必须是大于 0 的整数（单位：分）' }
+      }
+      setBudgetCents(budgetCents)
+      return { ok: true }
+    } catch (error) {
+      return { ok: false, error: String(error) }
+    }
+  })
+}
+
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.heima.jizhang')
 
@@ -111,6 +137,7 @@ app.whenReady().then(() => {
 
   initDatabase()
   registerBillHandlers()
+  registerBudgetHandlers()
 
   createWindow()
 

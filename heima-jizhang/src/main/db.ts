@@ -25,6 +25,10 @@ export function initDatabase(): void {
       created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
     );
     CREATE INDEX IF NOT EXISTS idx_bills_date ON bills(date);
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    );
   `)
 }
 
@@ -117,4 +121,26 @@ export function updateBill(id: number, bill: BillInput): void {
 export function deleteBill(id: number): void {
   if (!db) throw new Error('数据库尚未初始化')
   db.prepare('DELETE FROM bills WHERE id = ?').run(id)
+}
+
+// ---------- 设置（settings 表）----------
+
+const BUDGET_KEY = 'monthly_budget_cents'
+
+/** 读取每月预算（单位：分）；未设置时返回 null */
+export function getBudgetCents(): number | null {
+  if (!db) throw new Error('数据库尚未初始化')
+  const row = db.prepare('SELECT value FROM settings WHERE key = ?').get(BUDGET_KEY) as
+    | { value: string }
+    | undefined
+  return row ? Number(row.value) : null
+}
+
+/** 保存每月预算（单位：分） */
+export function setBudgetCents(budgetCents: number): void {
+  if (!db) throw new Error('数据库尚未初始化')
+  db.prepare(
+    `INSERT INTO settings (key, value) VALUES (?, ?)
+     ON CONFLICT(key) DO UPDATE SET value = excluded.value`
+  ).run(BUDGET_KEY, String(budgetCents))
 }
