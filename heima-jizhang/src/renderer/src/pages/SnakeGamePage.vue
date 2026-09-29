@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import {
+  CELL,
+  COLS,
+  ROWS,
+  createInitialState,
+  speedFpsFor,
+  tryTurn,
+  isOpposite,
+  step as stepGame
+} from '../game/snake-engine'
+import type { Point, SnakeState } from '../game/snake-engine'
 
-// ---------- 常量（与 Python 版玩法保持一致） ----------
-const CELL = 24 // 每格像素
-const COLS = 28 // 网格列数
-const ROWS = 21 // 网格行数
-const FPS_BASE = 5 // 初始速度（格/秒）
-const FPS_MAX = 15 // 最快速度
-const SPEEDUP_EVERY = 5 // 每吃几个食物加速一次
-
-type Point = { x: number; y: number }
 type GameState = 'idle' | 'running' | 'paused' | 'over'
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
@@ -18,36 +20,17 @@ const score = ref(0)
 const highScore = ref(0)
 const newRecord = ref(false)
 
-let snake: Point[] = []
-let food: Point = { x: 0, y: 0 }
-let dir: Point = { x: 1, y: 0 } // 当前移动方向
-let nextDir: Point = { x: 1, y: 0 } // 缓冲方向：一帧内只能改一次，防止瞬间掉头
+// 游戏局面（蛇、食物、方向、分数），规则全部在 snake-engine.ts 里
+let game: SnakeState = createInitialState()
 let timer: ReturnType<typeof setInterval> | null = null
 
 /** 当前速度：每吃 5 个食物加速一档，最快 15 格/秒 */
-const speedFps = computed(() =>
-  Math.min(FPS_BASE + Math.floor(score.value / SPEEDUP_EVERY), FPS_MAX)
-)
-
-function randomFreeCell(): Point {
-  while (true) {
-    const p = { x: Math.floor(Math.random() * COLS), y: Math.floor(Math.random() * ROWS) }
-    if (!snake.some((s) => s.x === p.x && s.y === p.y)) return p
-  }
-}
+const speedFps = computed(() => speedFpsFor(score.value))
 
 function resetGame(): void {
-  // 初始蛇：中间偏左，3 节，向右移动（与 Python 版一致）
-  snake = [
-    { x: 14, y: 10 },
-    { x: 13, y: 10 },
-    { x: 12, y: 10 }
-  ]
-  dir = { x: 1, y: 0 }
-  nextDir = { x: 1, y: 0 }
+  game = createInitialState()
   score.value = 0
   newRecord.value = false
-  food = randomFreeCell()
   draw()
 }
 
@@ -64,31 +47,13 @@ function stopTimer(): void {
 }
 
 function step(): void {
-  dir = nextDir
-  const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y }
-  // 撞墙
-  if (head.x < 0 || head.x >= COLS || head.y < 0 || head.y >= ROWS) {
+  const result = stepGame(game)
+  score.value = game.score
+  if (result.over) {
     gameOver()
     return
   }
-  // 咬到自己
-  if (snake.some((s) => s.x === head.x && s.y === head.y)) {
-    gameOver()
-    return
-  }
-  snake.unshift(head)
-  if (head.x === food.x && head.y === food.y) {
-    score.value += 1
-    if (snake.length >= COLS * ROWS) {
-      // 蛇占满整个棋盘（几乎不可能达到）：直接结算，避免找空位陷入死循环
-      gameOver()
-      return
-    }
-    food = randomFreeCell()
-    startTimer() // 分数变化后速度可能提升，重新计时
-  } else {
-    snake.pop()
-  }
+  if (result.ate) startTimer() // 分数变化后速度可能提升，重新计时
   draw()
 }
 
@@ -160,11 +125,17 @@ function draw(): void {
   // 食物（红色圆点）
   ctx.fillStyle = '#f56c6c'
   ctx.beginPath()
-  ctx.arc(food.x * CELL + CELL / 2, food.y * CELL + CELL / 2, CELL / 2 - 4, 0, Math.PI * 2)
+  ctx.arc(
+    game.food.x * CELL + CELL / 2,
+    game.food.y * CELL + CELL / 2,
+    CELL / 2 - 4,
+    0,
+    Math.PI * 2
+  )
   ctx.fill()
 
   // 蛇身（头部更亮）
-  snake.forEach((s, i) => {
+  game.snake.forEach((s, i) => {
     ctx.fillStyle = i === 0 ? '#85ce61' : '#67c23a'
     ctx.beginPath()
     ctx.roundRect(s.x * CELL + 1.5, s.y * CELL + 1.5, CELL - 3, CELL - 3, 6)
@@ -206,17 +177,16 @@ function onKeydown(e: KeyboardEvent): void {
     else if (k === 'arrowdown' || k === 's') want = { x: 0, y: 1 }
     else if (k === 'arrowleft' || k === 'a') want = { x: -1, y: 0 }
     else want = { x: 1, y: 0 }
-    // 不允许 180 度掉头（以当前实际方向为准，防止一帧内连按两键完成掉头）
-    if (want.x === -dir.x && want.y === -dir.y) return
     if (state.value === 'idle' || state.value === 'over') {
-      // 按方向键也能直接开局
+      // 按方向键也能直接开局；与当前方向相反的键不生效
+      if (isOpposite(want, game.dir)) return
       resetGame()
-      nextDir = want
+      game.nextDir = want
       state.value = 'running'
       startTimer()
       return
     }
-    nextDir = want
+    tryTurn(game, want)
     return
   }
 

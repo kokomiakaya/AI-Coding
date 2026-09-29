@@ -109,6 +109,7 @@
 | M6 打包发布 | 打包成 Windows 安装包（exe），双击安装即可使用 | ✅ 完成 |
 | M7 预算与图标 | 新增「发现」页（固定月度预算、超支判断）；支出分类菜单全部加 emoji 图标 | ✅ 完成 |
 | M8 游戏彩蛋 | 「游戏」页内置网页版贪吃蛇（JS + Canvas 重写 Python 版玩法），最高分存 settings 表 | ✅ 完成 |
+| M9 单元测试技能 | 新增「单元测试」技能（Vitest）：写测试、跑测试、出中文报告；贪吃蛇规则抽成独立引擎并测试 | ✅ 完成 |
 
 ## 9. 开发注意事项（踩坑记录）
 
@@ -121,6 +122,16 @@
   3. 本开发环境的 PATH 缺 PowerShell 目录，打包前需 `PATH="/c/Windows/System32/WindowsPowerShell/v1.0:$PATH"`，否则报 spawn powershell.exe ENOENT。
 - 完整打包命令：`PATH="/c/Windows/System32/WindowsPowerShell/v1.0:$PATH" env -u ELECTRON_RUN_AS_NODE ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/ npm run build:win`（后台运行需关闭沙箱）
 - Electron 内核二进制无法从 GitHub 下载时，使用国内镜像重试：`ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ node node_modules/electron/install.js`。
+
+## 10. 常用开发命令
+
+- 启动开发模式（边改边看效果）：`env -u ELECTRON_RUN_AS_NODE npm run dev`（从 Claude Code VSCode 插件环境启动必须加 `env -u` 前缀，原因见第 9 节；从本工具启动还需后台运行 + 关闭沙箱）
+- 类型检查：`npm run typecheck`
+- 跑全部单元测试：`npx vitest run`
+- 跑单个测试文件：`npx vitest run src/renderer/src/game/snake-engine.test.ts`
+- 构建代码（不打包）：`npm run build`
+- 打 Windows 安装包：完整命令见第 9 节（需镜像、PATH 修正、后台运行）
+- 提交存档：直接说「提交」（gitcommit-agent 会先并行质检再提交；提交闸门会验证质检标记，见第 14 节）
 
 ## 11. GitHub 仓库信息
 
@@ -158,3 +169,51 @@
 | 2026-09-28 | 游戏最高分存储 | settings 表（key: snake_high_score） | Claude 直接决定（沿用现有存储，协作规则第 2 条例外） |
 | 2026-09-28 | 游戏菜单图标 | 🎮 emoji（图标库无游戏手柄图标） | Claude 直接决定（与全 App emoji 风格统一，协作规则第 2 条例外） |
 | 2026-09-28 | 游戏棋盘配色 | 浅色底 #f2f4f7 + 深色网格线 #8b95a5 | 用户反馈深色背景看不清网格后修改 |
+| 2026-09-29 | 测试框架 | Vitest | 用户从 3 个方案中选定 |
+| 2026-09-29 | 测试技能存放位置 | 项目内 `.claude/skills/unit-test/` | Claude 直接决定（本项目专属工作流程，协作规则第 2 条例外） |
+| 2026-09-29 | 贪吃蛇规则抽取 | 独立引擎 `src/renderer/src/game/snake-engine.ts`（纯规则，界面只负责画） | 用户选定（测试方式：抽出规则单独测）；抽取后需试玩验收手感 |
+| 2026-09-29 | 代码审查 subagent | 全面审查员 `.claude/agents/code-reviewer.md`（code-review + unit-test 双技能） | 用户从 3 个方案中选定 |
+| 2026-09-29 | 安全审查技能 | 项目内 `.claude/skills/security-audit/`（查敏感信息泄露/SQL注入/配置明文/其他隐患，出中文报告） | 存放位置用户从 2 个方案中选定；code-reviewer 保持双技能、不配此技能（用户选定） |
+| 2026-09-29 | 注释审查技能 | 项目内 `.claude/skills/comment-review/`（查必要注释缺失、注释与代码不符，出中文报告） | 技能名与存放位置 Claude 直接决定（沿用前两个技能的惯例，协作规则第 2 条例外） |
+| 2026-09-29 | 质量工程师 subagent | `.claude/agents/quality-engineer.md`（security-audit + comment-review 双技能，一次召唤做两项质检） | 名字与功能由用户指定；工具配置沿用 code-reviewer 惯例（协作规则第 2 条例外） |
+| 2026-09-29 | 提交闸门方式 | Claude Code PreToolUse 钩子（`.claude/settings.json`，随代码上传） | 用户从 2 个方案中选定（只拦 Claude Code 内执行的提交，终端手敲不拦） |
+| 2026-09-29 | 单元测试质检标记 | 改造 unit-test 技能：测试后写 `.claude/checks/unit-test.txt` 标记 | 用户选定（不新建测试专员 subagent） |
+| 2026-09-29 | 质检通过标准 | 只拦 🔴 严重问题（安全/注释）；🟡 记录提醒、不拦 | 用户选定 |
+| 2026-09-29 | 提交存档技能范围 | git-save 只本地存档（add + commit）；上传 GitHub 照旧 §11 单独进行 | 用户选定 |
+| 2026-09-29 | 改动指纹机制 | SHA-1 指纹（git diff HEAD + 未跟踪文件内容）+ 标记文件格式 | Claude 直接决定（协作规则第 2 条例外） |
+| 2026-09-29 | 质检标记去留规则 | 检查后保留（用户可查看）；提交成功后自动删除；质检失败时保留作修复依据 | 用户选定（标记文件绝不进 git） |
+
+## 13. 代码结构地图
+
+应用分三层，像「管家 + 传话筒 + 店面」：
+
+- **主进程 `src/main/`** —— 应用管家：`index.ts` 负责开窗口、注册数据接口；`db.ts` 负责管 SQLite 数据库（`bills` 账单表 + `settings` 设置表，设置表存预算和贪吃蛇最高分）
+- **预加载 `src/preload/index.ts`** —— 传话筒：把管家的接口包装成 `window.api`，页面只能通过它访问数据，不能直接碰数据库
+- **渲染层 `src/renderer/src/`** —— 店面（界面）：`App.vue` 布局 + `pages/` 下 5 个页面（记账/明细/统计/发现/游戏）；`data/categories.ts` 是分类表；`game/snake-engine.ts` 是贪吃蛇纯规则引擎（界面只负责画）
+
+数据流动方向（改功能时按这条线找代码）：
+
+```
+页面 → window.api.xxx → IPC 通道（bill:* / budget:* / game:*）
+→ 主进程 index.ts 对应接口 → db.ts → SQLite
+```
+
+其他约定：
+
+- 所有接口统一返回 `{ ok: boolean, 数据?, error? }`，页面先判断 `ok`
+- 金额一律以「分」为单位的整数存储，避免小数误差
+- 主进程和页面共用的数据类型都在 `src/shared/types.ts`
+- 单元测试放在被测文件旁边，命名 `xxx.test.ts`，用 Vitest 跑
+
+## 14. 提交闸门（质检门卫）
+
+提交前必须有两份「体检报告」（质检标记文件），否则提交被拦：
+
+- **标记位置**：`.claude/checks/unit-test.txt`（单元测试）+ `.claude/checks/quality.txt`（安全+注释质检）；已被 .gitignore 排除、不进版本库
+- **标记格式**：第 1 行 PASS / FAIL 原因，第 2 行「改动指纹」，第 3 行时间，之后摘要
+- **改动指纹**：对当前工作区改动算的唯一编号（`node .claude/scripts/commit-gate.mjs fingerprint`）；质检后若又改了代码，指纹对不上，提交会被拦——重新说「提交」走一遍质检即可
+- **闸门**：`.claude/settings.json` 里的 Claude Code 钩子（PreToolUse），拦下 Claude Code 内执行的 git commit；配置随代码上传，换电脑无需重装
+- **提交流程**：说「提交」→ gitcommit-agent 并行派发两位检查员（单元测试 + 质量检查）→ 都通过 → git-save 技能 add + commit
+- **应急后门**：`git commit --no-verify` 可跳过闸门（git 自己的设计）；平时不要用
+- **覆盖范围**（用户已拍板）：只拦 Claude Code 内执行的提交；自己在终端或 VSCode 界面手敲 git commit 拦不到
+- **标记去留**（用户已拍板）：检查后保留（可打开查看）；提交成功后自动删除；质检失败时保留作修复依据
