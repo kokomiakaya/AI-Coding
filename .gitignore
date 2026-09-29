@@ -1,0 +1,25 @@
+# 密钥与本地配置
+backend/.env
+
+# 运行时数据
+backend/storage/
+*.db
+*.db-wal
+*.db-shm
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+
+# Node
+node_modules/
+frontend/dist/
+
+# IDE
+.idea/
+.vscode/
+*.log
